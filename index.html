@@ -1125,31 +1125,69 @@
         function showKPIModal(dimension, title) {
             document.getElementById('modal-title').textContent = title;
             
+            // 区总 KPI指标
             const kpiNames = {
-                finance: ['总营业额达成率', '地区合资&法人公司税前利润得分', '新开店数达成率'],
-                customer: ['大众点评<4.0星管理', '饿了么<4.5星优化率', '美团<95分优化率', '低星店铺较去年增长率', '德克士会员业绩占比', '贝瑞会员业绩占比'],
-                operation: ['净增店数达成率', '店均管理费用使用率', '战略城市新开店数达成'],
-                learning: ['学习与发展维度综合得分']
+                finance: ['1、总营业额达成率', '2、地区合资&法人公司税前利润', '3、新开店数达成率'],
+                customer: ['大众点评<4.0星管理', '饿了么<4.5星优化率', '美团<95分优化率', '抖音店铺<4.0星优化率', '低星店铺较去年同期增长率', '德克士会员业绩占比', '贝瑞会员业绩占比'],
+                operation: ['净增店数达成率', '店均管理费用使用率', '战略城市新开店数达成', '组织运营维度得分合计'],
+                learning: ['学习与发展维度得分合计'],
+
+                // 区副总-西式 KPI指标
+                financeXi: ['总营业额', '亏损餐厅达成', '新开店数达成'],
+                customerXi: ['新开标准店日商达成', '新开精巧店日商达成', '德克士会员业绩达成', '贝瑞会员业绩达成', '店均社群用户数达成'],
+                operationXi: ['战略城市新开店数达成', '优化闭店达成率', '人均营业额较去年同期成长'],
+                learningXi: ['学习与发展维度得分合计'],
+
+                // 区副总-中式 KPI指标
+                financeZhong: ['总营业额', '地区法人公司税前利益达成', '新开店数达成'],
+                customerZhong: ['私房大众点评管理', '全民大众点评管理', '会员业绩占比', '店均会员圈粉数'],
+                operationZhong: ['亏损餐厅占比', '净增店数达成', '人均营业额较去年同期成长'],
+                learningZhong: ['学习与发展维度得分合计']
+            };
+
+            // 各维度权重说明
+            const dimWeights = {
+                finance: '财务维度（45分）',
+                customer: '顾客维度（20分）',
+                operation: '组织运营维度（25分）',
+                learning: '学习与发展维度（10分）',
+                financeXi: '财务维度（40分）',
+                customerXi: '顾客维度（30分）',
+                operationXi: '组织运营维度（20分）',
+                learningXi: '学习与发展维度（10分）',
+                financeZhong: '财务维度（40分）',
+                customerZhong: '顾客维度（30分）',
+                operationZhong: '组织运营维度（20分）',
+                learningZhong: '学习与发展维度（10分）'
             };
 
             const names = kpiNames[dimension] || [];
+            const weightLabel = dimWeights[dimension] || '';
+
             let tableHtml = `
+                <div style="margin-bottom:12px; padding:8px 12px; background:#e8f4fd; border-radius:8px; color:#1a73e8; font-weight:600; font-size:14px;">
+                    📊 ${weightLabel}
+                </div>
                 <table class="kpi-table">
                     <thead>
-                        <tr><th>指标名称</th><th>典型达成率</th><th>评分说明</th></tr>
+                        <tr>
+                            <th style="width:50%">指标名称</th>
+                            <th style="width:25%">考核方式</th>
+                            <th style="width:25%">评分说明</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        ${names.map(name => `
+                        ${names.map((name, idx) => `
                             <tr>
                                 <td><strong>${name}</strong></td>
-                                <td>根据实际数据计算</td>
-                                <td>达成率×权重得分</td>
+                                <td style="color:#555">达成率计算</td>
+                                <td style="color:#555">按权重折算得分</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
-                <div class="click-hint" style="margin-top: 16px; padding: 12px; background: #f0f7ff; border-radius: 8px;">
-                    <strong>说明：</strong>各维度得分由其下所有KPI指标加权计算得出。点击维度卡片可查看该维度下所有人员的详细KPI指标表现。
+                <div class="click-hint" style="margin-top: 16px; padding: 12px; background: #f0f7ff; border-radius: 8px; font-size:13px; color:#555;">
+                    <strong>说明：</strong>各维度得分由其下所有KPI指标加权计算得出，总分100分。学习与发展维度由HR统一评定，其余维度按实际经营数据达成率折算。
                 </div>
             `;
             
