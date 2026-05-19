@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐饮群2026年Q1区总区副数据看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            background: #f0f7ff;
+            color: #1a73e8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .nav-tab:hover {
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+        }
+        .page {
+            display: none;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .page.active {
+            display: block;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1a73e8;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #1a73e8 0%, #0d47a1 100%);
+            border-radius: 2px;
+        }
+        .ranking-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        .ranking-table thead th {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+        .ranking-table thead th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+        .ranking-table thead th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+        .ranking-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        .ranking-table tbody tr:hover {
+            background: #f0f7ff;
+        }
+        .ranking-table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #e8f4fd;
+        }
+        .ranking-table tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 12px;
+        }
+        .ranking-table tbody tr:last-child td:last-child {
+            border-radius: 0 0 12px 0;
+        }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .rank-1 { background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%); color: #5d4037; }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%); color: #333; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32 0%, #b86e2a 100%); color: white; }
+        .rank-default { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1a73e8; }
+        .score-high { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); color: #2e7d32; }
+        .score-mid { background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); color: #f57f17; }
+        .score-low { background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); color: #c62828; }
+        .grade-s { background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white; }
+        .grade-ap { background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%); color: white; }
+        .grade-a { background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%); color: white; }
+        .grade-b { background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%); color: white; }
+        .grade-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .person-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .person-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .person-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1a73e8 0%, #0d47a1 100%);
+        }
+        .person-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(26, 115, 232, 0.2);
+        }
+        .person-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .person-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .person-region {
+            font-size: 12px;
+            color: #666;
+            background: #f0f7ff;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .score-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .score-item label {
+            display: block;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .score-item .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a73e8;
+        }
+        .score-item .value.highlight {
+            color: #0d47a1;
+        }
+        .dimension-rankings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .dimension-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .dimension-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(26, 115, 232, 0.2);
+        }
+        .dimension-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dimension-table {
+            width: 100%;
+            font-size: 13px;
+        }
+        .dimension-table th {
+            text-align: left;
+            padding: 8px 4px;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 1px solid #e8f4fd;
+        }
+        .dimension-table td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #f0f7ff;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e8f4fd;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a73e8;
+        }
+        .modal-close {
+            background: #ffebee;
+            color: #c62828;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover {
+            background: #ffcdd2;
+            transform: scale(1.1);
+        }
+        .kpi-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        .kpi-table thead th {
+            background: #f0f7ff;
+            color: #1a73e8;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+        .kpi-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .kpi-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e8f4fd;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e8f4fd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .stat-card .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .food-safety-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        .food-safety-table thead th {
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+        }
+        .food-safety-table thead th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+        .food-safety-table thead th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+        .food-safety-table tbody tr:hover {
+            background: #f0f7ff;
+        }
+        .food-safety-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e8f4fd;
+        }
+        .green-badge { color: #2e7d32; font-weight: 600; }
+        .red-badge { color: #c62828; font-weight: 600; }
+        .contribution-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        .contribution-table thead th {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+        }
+        .contribution-table thead th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+        .contribution-table thead th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+        .contribution-table tbody tr:hover {
+            background: #fff8e1;
+        }
+        .contribution-table td {
+            padding: 12px;
+            border-bottom: 1px solid #fff3e0;
+        }
+        .bar-chart-container {
+            height: 350px;
+            margin-top: 20px;
+        }
+        .summary-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .summary-bar span {
+            font-size: 14px;
+        }
+        .summary-bar strong {
+            font-size: 18px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .click-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>餐饮群 2026年Q1 区总区副绩效数据看板</h1>
+        <p>数据更新时间：2026年Q1 | 统计口径：硬指标总分 + 调整项 + 总经理核定</p>
+    </div>
+    
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showPage(1)">📊 区总</button>
+        <button class="nav-tab" onclick="showPage(2)">🍽️ 区副总-西式</button>
+        <button class="nav-tab" onclick="showPage(3)">🥢 区副总-中式</button>
+        <button class="nav-tab" onclick="showPage(4)">✅ 调整项1-食安</button>
+        <button class="nav-tab" onclick="showPage(5)">🏪 调整项2-新开店</button>
+    </div>
+
+    <!-- 第1页：区总 -->
+    <div id="page1" class="page active">
+        <div class="summary-bar">
+            <span>📈 区总绩效总览</span>
+            <strong>共 <span id="quzong-count">12</span> 位区总</strong>
+        </div>
+        
+        <div class="section-title">🏆 总经理核定分数排名</div>
+        <div class="card">
+            <div class="person-cards" id="quzong-cards"></div>
+        </div>
+
+        <div class="section-title">📊 四大维度得分排名</div>
+        <div class="dimension-rankings" id="quzong-dimensions"></div>
+    </div>
+
+    <!-- 第2页：区副总-西式 -->
+    <div id="page2" class="page">
+        <div class="summary-bar">
+            <span>📈 区副总-西式业态绩效总览</span>
+            <strong>共 <span id="quzongxi-count">24</span> 位区副总</strong>
+        </div>
+        
+        <div class="section-title">🏆 总经理核定分数排名</div>
+        <div class="card">
+            <div class="person-cards" id="quzongxi-cards"></div>
+        </div>
+
+        <div class="section-title">📊 四大维度得分排名</div>
+        <div class="dimension-rankings" id="quzongxi-dimensions"></div>
+    </div>
+
+    <!-- 第3页：区副总-中式 -->
+    <div id="page3" class="page">
+        <div class="summary-bar">
+            <span>📈 区副总-中式业态绩效总览</span>
+            <strong>共 <span id="quzongzhong-count">9</span> 位区副总</strong>
+        </div>
+        
+        <div class="section-title">🏆 中式业态硬指标总分排名</div>
+        <div class="card">
+            <div class="person-cards" id="quzongzhong-cards"></div>
+        </div>
+
+        <div class="section-title">📊 四大维度得分排名</div>
+        <div class="dimension-rankings" id="quzongzhong-dimensions"></div>
+    </div>
+
+    <!-- 第4页：调整项1-食安红绿牌数 -->
+    <div id="page4" class="page">
+        <div class="summary-bar">
+            <span>✅ 食品安全红绿牌统计</span>
+            <strong>覆盖全部地区</strong>
+        </div>
+        
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="icon">🟢</div>
+                <div class="value" id="total-green">0</div>
+                <div class="label">食安绿牌总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🔴</div>
+                <div class="value" id="total-red">0</div>
+                <div class="label">食安红牌总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">📊</div>
+                <div class="value" id="total-remaining">0</div>
+                <div class="label">抵扣后剩余绿牌</div>
+            </div>
+        </div>
+
+        <div class="section-title">📋 各地食安红绿牌明细</div>
+        <div class="card">
+            <table class="food-safety-table" id="food-safety-table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 第5页：调整项2-全国新开店贡献度 -->
+    <div id="page5" class="page">
+        <div class="summary-bar">
+            <span>🏪 全国新开店贡献度分析</span>
+            <strong>Q1季度数据</strong>
+        </div>
+        
+        <div class="section-title">📊 各地区贡献度对比</div>
+        <div class="card">
+            <div class="bar-chart-container">
+                <canvas id="contributionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section-title">📋 贡献度明细表</div>
+        <div class="card">
+            <table class="contribution-table" id="contribution-table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">KPI指标明细</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 数据定义 ==========
+        const quZongData = [
+            {name: "谯先培", region: "川渝", finance: 15, customer: 8, operation: 6, learning: 10, hardTotal: 39, adjusted: 50.05, final: 50.05, grade: "B"},
+            {name: "林嘉", region: "云贵", finance: 19.5, customer: 9, operation: 10.83, learning: 8, hardTotal: 47.71, adjusted: 37.71, final: 37.71, grade: "B"},
+            {name: "陈明", region: "湘鄂豫", finance: 45, customer: 4, operation: 20, learning: 9, hardTotal: 78, adjusted: 79.9, final: 79.9, grade: "A+"},
+            {name: "戴南江", region: "京津冀", finance: 36.97, customer: 6, operation: 12.51, learning: 8, hardTotal: 63, adjusted: 69.9, final: 71, grade: "A+"},
+            {name: "杨平", region: "东蒙", finance: 16.89, customer: 9, operation: 15, learning: 9, hardTotal: 54.56, adjusted: 59.9, final: 61, grade: "A"},
+            {name: "王刚", region: "陕蒙", finance: 33.09, customer: 7, operation: 25, learning: 8, hardTotal: 78.33, adjusted: 79.9, final: 79.9, grade: "A+"},
+            {name: "王洪亮", region: "山西", finance: 44.61, customer: 8, operation: 25, learning: 8, hardTotal: 84.24, adjusted: 89.29, final: 81, grade: "S"},
+            {name: "郑忠干", region: "华南", finance: 30, customer: 6, operation: 15, learning: 6, hardTotal: 51.51, adjusted: 59.49, final: 60, grade: "A"},
+            {name: "王东方", region: "沪浙苏", finance: 31.06, customer: 8.94, operation: 10.5, learning: 6, hardTotal: 61.55, adjusted: 69.9, final: 71, grade: "A+"},
+            {name: "巫国英", region: "鲁苏皖", finance: 45, customer: 6, operation: 20, learning: 6, hardTotal: 79.22, adjusted: 79.9, final: 81, grade: "S"},
+            {name: "常盛林", region: "甘青宁", finance: 40.22, customer: 9, operation: 1.43, learning: 9, hardTotal: 57.12, adjusted: 58.82, final: 61, grade: "A"},
+            {name: "常盛林", region: "顶佳", finance: 45, customer: 6, operation: 10, learning: 6, hardTotal: 69.54, adjusted: 59.9, final: 61, grade: "A"}
+        ];
+
+        const quZongXiData = [
+            {name: "韩荣", region: "川渝", finance: 9.55, customer: 3.75, operation: 4.55, learning: 8, xiHard: 25.85, zhongHard: 0, totalHard: 25.85, adjusted: 32.4, final: 32.4, grade: "B"},
+            {name: "张鹏", region: "川渝", finance: 9.55, customer: 3.75, operation: 4.55, learning: 8, xiHard: 25.85, zhongHard: 33.15, totalHard: 28.77, adjusted: 38.23, final: 38.54, grade: "B"},
+            {name: "吴子进", region: "云贵", finance: 4.5, customer: 15.86, operation: 3.33, learning: 9, xiHard: 32.69, zhongHard: 0, totalHard: 32.69, adjusted: 22.69, final: 22.69, grade: "B"},
+            {name: "姚凤阳", region: "云贵", finance: 4.5, customer: 15.86, operation: 3.33, learning: 9, xiHard: 32.69, zhongHard: 0, totalHard: 32.69, adjusted: 22.69, final: 22.69, grade: "B"},
+            {name: "孙昊", region: "湘鄂豫", finance: 30, customer: 10, operation: 4.75, learning: 9, xiHard: 53.75, zhongHard: 0, totalHard: 53.75, adjusted: 59.9, final: 61, grade: "A"},
+            {name: "秦海俊", region: "湘鄂豫", finance: 30, customer: 10, operation: 4.75, learning: 9, xiHard: 53.75, zhongHard: 76.63, totalHard: 62.902, adjusted: 69.9, final: 70, grade: "A+"},
+            {name: "李钦忠", region: "京津冀", finance: 31.79, customer: 22, operation: 12.22, learning: 5, xiHard: 71.01, zhongHard: 58.01, totalHard: 65.81, adjusted: 69.9, final: 70, grade: "A+"},
+            {name: "王瑞宾", region: "京津冀", finance: 31.79, customer: 22, operation: 12.22, learning: 6, xiHard: 72.01, zhongHard: 0, totalHard: 72.01, adjusted: 79.9, final: 80, grade: "S"},
+            {name: "李野", region: "东蒙", finance: 1.89, customer: 9.67, operation: 7.93, learning: 9, xiHard: 28.49, zhongHard: 54.11, totalHard: 38.738, adjusted: 41.9, final: 41.9, grade: "B"},
+            {name: "刘洪胜", region: "东蒙", finance: 1.89, customer: 9.67, operation: 7.93, learning: 9, xiHard: 28.49, zhongHard: 0, totalHard: 28.49, adjusted: 29.35, final: 29.35, grade: "B"},
+            {name: "王冲", region: "陕蒙", finance: 18.09, customer: 5.24, operation: 14.04, learning: 7, xiHard: 44.37, zhongHard: 0, totalHard: 44.37, adjusted: 52.03, final: 52.03, grade: "B"},
+            {name: "赵永红", region: "陕蒙", finance: 18.09, customer: 5.24, operation: 14.04, learning: 7, xiHard: 44.37, zhongHard: 0, totalHard: 44.37, adjusted: 52.03, final: 52.03, grade: "B"},
+            {name: "霍斌祥", region: "山西", finance: 39.61, customer: 20.63, operation: 5, learning: 8, xiHard: 73.24, zhongHard: 0, totalHard: 73.24, adjusted: 77.63, final: 73, grade: "A+"},
+            {name: "王大志", region: "山西", finance: 39.61, customer: 20.63, operation: 5, learning: 8, xiHard: 73.24, zhongHard: 0, totalHard: 73.24, adjusted: 77.63, final: 76, grade: "A+"},
+            {name: "黄智强", region: "华南", finance: 15, customer: 1.35, operation: 15, learning: 5, xiHard: 36.35, zhongHard: 0, totalHard: 36.35, adjusted: 38.53, final: 38.53, grade: "B"},
+            {name: "王存良", region: "华南", finance: 15, customer: 1.35, operation: 15, learning: 4.5, xiHard: 35.85, zhongHard: 66.58, totalHard: 48.142, adjusted: 53.58, final: 53.58, grade: "B"},
+            {name: "林生菊", region: "沪浙苏", finance: 30, customer: 11.05, operation: 10, learning: 8.94, xiHard: 59.99, zhongHard: 0, totalHard: 59.99, adjusted: 59.99, final: 60, grade: "A"},
+            {name: "董悦伟", region: "沪浙苏", finance: 30, customer: 11.05, operation: 10, learning: 8.94, xiHard: 59.99, zhongHard: 74.44, totalHard: 65.77, adjusted: 69.9, final: 70, grade: "A+"},
+            {name: "苟于胜", region: "鲁苏皖", finance: 31.43, customer: 2.41, operation: 13.13, learning: 5, xiHard: 51.97, zhongHard: 0, totalHard: 51.97, adjusted: 59.9, final: 60, grade: "A"},
+            {name: "黄鸿俊", region: "鲁苏皖", finance: 31.43, customer: 2.41, operation: 13.13, learning: 6, xiHard: 52.97, zhongHard: 71.37, totalHard: 60.33, adjusted: 68.35, final: 70, grade: "A+"},
+            {name: "张彦", region: "甘青宁", finance: 25.22, customer: 0.47, operation: 1.43, learning: 9, xiHard: 36.12, zhongHard: 0, totalHard: 36.12, adjusted: 37.19, final: 37.19, grade: "B"},
+            {name: "常强强", region: "甘青宁", finance: 25.22, customer: 0.47, operation: 1.43, learning: 9, xiHard: 36.12, zhongHard: 0, totalHard: 36.12, adjusted: 36.11, final: 36.11, grade: "B"},
+            {name: "孔萍", region: "顶佳", finance: 30.84, customer: 4.54, operation: 5, learning: 5, xiHard: 45.38, zhongHard: 20, totalHard: 35.228, adjusted: 26.99, final: 26.99, grade: "B"},
+            {name: "张柏嘉", region: "台湾", finance: 0, customer: 30, operation: 0, learning: 8, xiHard: 38, zhongHard: 0, totalHard: 38, adjusted: 38, final: 38, grade: "B"}
+        ];
+
+        const quZongZhongData = [
+            {name: "张鹏", region: "川渝", finance: 1.15, customer: 24, operation: 0, learning: 8, hardTotal: 33.15},
+            {name: "秦海俊", region: "湘鄂豫", finance: 35, customer: 26, operation: 6.63, learning: 9, hardTotal: 76.63},
+            {name: "李钦忠", region: "京津冀", finance: 18.65, customer: 24.36, operation: 10, learning: 5, hardTotal: 58.01},
+            {name: "李野", region: "东蒙", finance: 18.94, customer: 10, operation: 16.17, learning: 9, hardTotal: 54.11},
+            {name: "王存良", region: "华南", finance: 19.08, customer: 28, operation: 15, learning: 4.5, hardTotal: 66.58},
+            {name: "董悦伟", region: "沪浙苏", finance: 25, customer: 28, operation: 12.5, learning: 8.94, hardTotal: 74.44},
+            {name: "黄鸿俊", region: "鲁苏皖", finance: 27.87, customer: 20, operation: 17.5, learning: 6, hardTotal: 71.37},
+            {name: "孔萍", region: "顶佳", finance: 10, customer: 0, operation: 5, learning: 5, hardTotal: 20}
+        ];
+
+        const foodSafetyData = [
+            {region: "川渝", name: "谯先培", position: "区总", green: 14, red: 2, remaining: 12},
+            {region: "川渝", name: "韩荣", position: "区副总", green: 4, red: 1, remaining: 3},
+            {region: "川渝", name: "张鹏", position: "区副总", green: 10, red: 1, remaining: 9},
+            {region: "云贵", name: "林嘉", position: "区总", green: 0, red: 2, remaining: -2},
+            {region: "云贵", name: "吴子进", position: "区副总", green: 0, red: 1, remaining: -1},
+            {region: "云贵", name: "姚凤阳", position: "区副总", green: 0, red: 1, remaining: -1},
+            {region: "湘鄂豫", name: "陈明", position: "区总", green: 12, red: 1, remaining: 11},
+            {region: "湘鄂豫", name: "孙昊", position: "区副总", green: 10, red: 1, remaining: 9},
+            {region: "湘鄂豫", name: "秦海俊", position: "区副总", green: 1, red: 0, remaining: 1},
+            {region: "京津冀", name: "戴南江", position: "区总", green: 18, red: 2, remaining: 16},
+            {region: "京津冀", name: "李钦忠", position: "区副总", green: 7, red: 0, remaining: 7},
+            {region: "京津冀", name: "王瑞宾", position: "区副总", green: 11, red: 2, remaining: 9},
+            {region: "东蒙", name: "杨平", position: "区总", green: 4, red: 1, remaining: 3},
+            {region: "东蒙", name: "李野", position: "区副总", green: 1, red: 0, remaining: 1},
+            {region: "东蒙", name: "刘洪胜", position: "区副总", green: 3, red: 1, remaining: 2},
+            {region: "陕蒙", name: "王刚", position: "区总", green: 14, red: 1, remaining: 13},
+            {region: "陕蒙", name: "王冲", position: "区副总", green: 7, red: 0, remaining: 7},
+            {region: "陕蒙", name: "赵永红", position: "区副总", green: 7, red: 1, remaining: 6},
+            {region: "山西", name: "王洪亮", position: "区总", green: 5, red: 0, remaining: 5},
+            {region: "山西", name: "王大志", position: "区副总", green: 5, red: 0, remaining: 5},
+            {region: "山西", name: "霍斌祥", position: "区副总", green: 5, red: 0, remaining: 5},
+            {region: "华南", name: "郑忠干", position: "区总", green: 15, red: 4, remaining: 11},
+            {region: "华南", name: "黄智强", position: "区副总", green: 9, red: 4, remaining: 5},
+            {region: "华南", name: "王存良", position: "区副总", green: 6, red: 0, remaining: 6},
+            {region: "沪浙苏", name: "王东方", position: "区总", green: 11, red: 8, remaining: 3},
+            {region: "沪浙苏", name: "董悦伟", position: "区副总", green: 5, red: 2, remaining: 3},
+            {region: "沪浙苏", name: "林生菊", position: "区副总", green: 6, red: 6, remaining: 0},
+            {region: "鲁苏皖", name: "巫国英", position: "区总", green: 4, red: 0, remaining: 4},
+            {region: "鲁苏皖", name: "苟于胜", position: "区副总", green: 4, red: 0, remaining: 4},
+            {region: "鲁苏皖", name: "黄鸿俊", position: "区副总", green: 0, red: 0, remaining: 0},
+            {region: "甘青宁", name: "常盛林", position: "区总", green: 3, red: 2, remaining: 1},
+            {region: "甘青宁", name: "张彦", position: "区副总", green: 2, red: 1, remaining: 1},
+            {region: "甘青宁", name: "常强强", position: "区副总", green: 1, red: 1, remaining: 0},
+            {region: "顶佳", name: "常盛林", position: "区总", green: 2, red: 3, remaining: -1},
+            {region: "顶佳", name: "孔萍", position: "区副总", green: 2, red: 3, remaining: -1},
+            {region: "台湾", name: "张柏嘉", position: "区副总", green: 0, red: 0, remaining: 0}
+        ];
+
+        const contributionData = [
+            {region: "川渝", avg: 12, actual: 16, contribution: 1.333, bonus: 5},
+            {region: "云贵", avg: 12, actual: 11, contribution: 0.917, bonus: 0},
+            {region: "湘鄂豫", avg: 12, actual: 22, contribution: 1.833, bonus: 5},
+            {region: "京津冀", avg: 12, actual: 13, contribution: 1.083, bonus: 3},
+            {region: "东蒙", avg: 12, actual: 6, contribution: 0.5, bonus: 0},
+            {region: "陕蒙", avg: 12, actual: 15, contribution: 1.25, bonus: 5},
+            {region: "山西", avg: 12, actual: 7, contribution: 0.583, bonus: 0},
+            {region: "华南", avg: 12, actual: 12, contribution: 1, bonus: 0},
+            {region: "沪浙苏", avg: 12, actual: 16, contribution: 1.333, bonus: 5},
+            {region: "鲁苏皖", avg: 12, actual: 16, contribution: 1.333, bonus: 5},
+            {region: "甘青宁", avg: 12, actual: 10, contribution: 0.833, bonus: 0},
+            {region: "顶佳", avg: 12, actual: 11, contribution: 0.917, bonus: 0},
+            {region: "台湾", avg: 12, actual: 1, contribution: 0.083, bonus: 0}
+        ];
+
+        // KPI指标数据
+        const quZongKPIs = {
+            finance: [
+                {name: "总营业额达成率", rates: [0.899, 0.930, 1.019, 0.946, 0.913, 0.921, 0.997, 1.038, 1.047, 1.052, 0.968, 1.008]},
+                {name: "地区合资&法人公司税前利润得分", rates: [0, 4.5, 15, 6.97, 1.89, 3.09, 14.61, 15, 15, 15, 10.22, 15]},
+                {name: "新开店数达成率", rates: [0.727, 0.786, 1.222, 1, 0.75, 1.364, 1.167, 0.75, 0.941, 1, 1.111, 1.375]}
+            ],
+            customer: [
+                {name: "大众点评<4.0星管理", rates: [-0.055, 0.556, 0.650, 0.952, 1.505, 0.468, 0.625, -0.308, -0.360, 0.426, 0.702, 2.051]},
+                {name: "饿了么<4.5星优化率", rates: [2.22, 0.952, 2.424, 3.704, 5, 1.951, -0.392, -9.333, 2.222, 4.444, 4.031, -0.991]},
+                {name: "美团<95分优化率", rates: [1.625, 2.372, 2.424, -1.778, 1.961, 1.951, 2.667, 0.690, 1.235, 3.590, 5.198, 0.556]}
+            ],
+            operation: [
+                {name: "净增店数达成率", rates: [0.636, 0.992, 0.984, 0.900, 0.896, 0.890, 0.983, 1.0, 0.916, 0.929, 1.032, 1.145]},
+                {name: "店均管理费用使用率", rates: [0.934, 0.833, 0.727, 0.889, 1.5, 1.571, 2.5, 1.2, 0.75, 0.5, 0.857, 0.75]}
+            ],
+            learning: [
+                {name: "学习与发展维度综合得分", rates: [10, 10.83, 20, 12.51, 15, 25, 25, 15, 10.5, 20, 1.43, 10]}
+            ]
+        };
+
+        // ========== 页面切换 ==========
+        function showPage(pageNum) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('page' + pageNum).classList.add('active');
+            document.querySelectorAll('.nav-tab')[pageNum - 1].classList.add('active');
+            
+            if (pageNum === 5 && !window.contributionChartRendered) {
+                renderContributionChart();
+                window.contributionChartRendered = true;
+            }
+        }
+
+        // ========== 区总页面渲染 ==========
+        function renderQuZong() {
+            const sorted = [...quZongData].sort((a, b) => b.final - a.final);
+            document.getElementById('quzong-count').textContent = sorted.length;
+            
+            let cardsHtml = '';
+            sorted.forEach((item, idx) => {
+                cardsHtml += `
+                    <div class="person-card fade-in" style="animation-delay: ${idx * 0.05}s">
+                        <div class="person-header">
+                            <span class="person-name">${item.name}</span>
+                            <span class="rank-badge rank-${idx < 3 ? idx + 1 : 'default'}">${idx + 1}</span>
+                        </div>
+                        <div class="person-region">${item.region}</div>
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <label>硬指标总分</label>
+                                <div class="value">${item.hardTotal.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>调整后得分</label>
+                                <div class="value highlight">${item.adjusted.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>总经理核定</label>
+                                <div class="value highlight">${item.final.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>核定等第</label>
+                                <div class="grade-badge grade-${item.grade.replace('+', 'p')}">${item.grade}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('quzong-cards').innerHTML = cardsHtml;
+
+            // 四大维度排名
+            const financeSorted = [...quZongData].sort((a, b) => b.finance - a.finance);
+            const customerSorted = [...quZongData].sort((a, b) => b.customer - a.customer);
+            const operationSorted = [...quZongData].sort((a, b) => b.operation - a.operation);
+            const learningSorted = [...quZongData].sort((a, b) => b.learning - a.learning);
+
+            const dimensionsHtml = `
+                <div class="dimension-card" onclick="showKPIModal('finance', '区总-财务维度')">
+                    <div class="dimension-title">💰 财务维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${financeSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('customer', '区总-顾客维度')">
+                    <div class="dimension-title">👥 顾客维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${customerSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('operation', '区总-组织运营维度')">
+                    <div class="dimension-title">⚙️ 组织运营维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${operationSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('learning', '区总-学习发展维度')">
+                    <div class="dimension-title">📚 学习与发展维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${learningSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+            `;
+            document.getElementById('quzong-dimensions').innerHTML = dimensionsHtml;
+        }
+
+        // ========== 区副总-西式页面渲染 ==========
+        function renderQuZongXi() {
+            const sorted = [...quZongXiData].sort((a, b) => b.final - a.final);
+            document.getElementById('quzongxi-count').textContent = sorted.length;
+            
+            let cardsHtml = '';
+            sorted.forEach((item, idx) => {
+                cardsHtml += `
+                    <div class="person-card fade-in" style="animation-delay: ${idx * 0.03}s">
+                        <div class="person-header">
+                            <span class="person-name">${item.name}</span>
+                            <span class="rank-badge rank-${idx < 3 ? idx + 1 : 'default'}">${idx + 1}</span>
+                        </div>
+                        <div class="person-region">${item.region}</div>
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <label>西式硬指标</label>
+                                <div class="value">${item.xiHard.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>中式硬指标</label>
+                                <div class="value">${item.zhongHard > 0 ? item.zhongHard.toFixed(1) : '-'}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>综合硬指标</label>
+                                <div class="value highlight">${item.totalHard.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>调整后得分</label>
+                                <div class="value highlight">${item.adjusted.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>总经理核定</label>
+                                <div class="value highlight">${item.final.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>核定等第</label>
+                                <div class="grade-badge grade-${item.grade.replace('+', 'p')}">${item.grade}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('quzongxi-cards').innerHTML = cardsHtml;
+
+            // 四大维度排名
+            const financeSorted = [...quZongXiData].sort((a, b) => b.finance - a.finance);
+            const customerSorted = [...quZongXiData].sort((a, b) => b.customer - a.customer);
+            const operationSorted = [...quZongXiData].sort((a, b) => b.operation - a.operation);
+            const learningSorted = [...quZongXiData].sort((a, b) => b.learning - a.learning);
+
+            const dimensionsHtml = `
+                <div class="dimension-card" onclick="showKPIModal('financeXi', '区副总-财务维度')">
+                    <div class="dimension-title">💰 财务维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${financeSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('customerXi', '区副总-顾客维度')">
+                    <div class="dimension-title">👥 顾客维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${customerSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('operationXi', '区副总-组织运营维度')">
+                    <div class="dimension-title">⚙️ 组织运营维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${operationSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('learningXi', '区副总-学习发展维度')">
+                    <div class="dimension-title">📚 学习与发展维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${learningSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+            `;
+            document.getElementById('quzongxi-dimensions').innerHTML = dimensionsHtml;
+        }
+
+        // ========== 区副总-中式页面渲染 ==========
+        function renderQuZongZhong() {
+            const sorted = [...quZongZhongData].sort((a, b) => b.hardTotal - a.hardTotal);
+            document.getElementById('quzongzhong-count').textContent = sorted.length;
+            
+            let cardsHtml = '';
+            sorted.forEach((item, idx) => {
+                cardsHtml += `
+                    <div class="person-card fade-in" style="animation-delay: ${idx * 0.08}s">
+                        <div class="person-header">
+                            <span class="person-name">${item.name}</span>
+                            <span class="rank-badge rank-${idx < 3 ? idx + 1 : 'default'}">${idx + 1}</span>
+                        </div>
+                        <div class="person-region">${item.region}</div>
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <label>中式业态硬指标总分</label>
+                                <div class="value highlight">${item.hardTotal.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>财务维度</label>
+                                <div class="value">${item.finance.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>顾客维度</label>
+                                <div class="value">${item.customer.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>组织运营</label>
+                                <div class="value">${item.operation.toFixed(1)}</div>
+                            </div>
+                            <div class="score-item">
+                                <label>学习发展</label>
+                                <div class="value">${item.learning.toFixed(1)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('quzongzhong-cards').innerHTML = cardsHtml;
+
+            // 四大维度排名
+            const financeSorted = [...quZongZhongData].sort((a, b) => b.finance - a.finance);
+            const customerSorted = [...quZongZhongData].sort((a, b) => b.customer - a.customer);
+            const operationSorted = [...quZongZhongData].sort((a, b) => b.operation - a.operation);
+            const learningSorted = [...quZongZhongData].sort((a, b) => b.learning - a.learning);
+
+            const dimensionsHtml = `
+                <div class="dimension-card" onclick="showKPIModal('financeZhong', '区副总(中式)-财务维度')">
+                    <div class="dimension-title">💰 财务维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${financeSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('customerZhong', '区副总(中式)-顾客维度')">
+                    <div class="dimension-title">👥 顾客维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${customerSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('operationZhong', '区副总(中式)-组织运营维度')">
+                    <div class="dimension-title">⚙️ 组织运营维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${operationSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+                <div class="dimension-card" onclick="showKPIModal('learningZhong', '区副总(中式)-学习发展维度')">
+                    <div class="dimension-title">📚 学习与发展维度得分排名</div>
+                    <table class="dimension-table">
+                        <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
+                        ${learningSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
+                    </table>
+                    <div class="click-hint">点击查看全部KPI指标明细 →</div>
+                </div>
+            `;
+            document.getElementById('quzongzhong-dimensions').innerHTML = dimensionsHtml;
+        }
+
+        // ========== 食安数据渲染 ==========
+        function renderFoodSafety() {
+            const totalGreen = foodSafetyData.reduce((sum, item) => sum + parseInt(item.green), 0);
+            const totalRed = foodSafetyData.reduce((sum, item) => sum + parseInt(item.red), 0);
+            const totalRemaining = foodSafetyData.reduce((sum, item) => sum + parseInt(item.remaining), 0);
+            
+            document.getElementById('total-green').textContent = totalGreen;
+            document.getElementById('total-red').textContent = totalRed;
+            document.getElementById('total-remaining').textContent = totalRemaining;
+
+            const groupedByRegion = {};
+            foodSafetyData.forEach(item => {
+                if (!groupedByRegion[item.region]) {
+                    groupedByRegion[item.region] = [];
+                }
+                groupedByRegion[item.region].push(item);
+            });
+
+            let tableHead = '<tr><th>姓名</th><th>岗位</th><th>地区</th><th>🟢绿牌总数</th><th>🔴红牌总数</th><th>📊抵扣后剩余</th></tr>';
+            let tableBody = '';
+            
+            Object.keys(groupedByRegion).sort().forEach(region => {
+                groupedByRegion[region].forEach(item => {
+                    tableBody += `
+                        <tr>
+                            <td><strong>${item.name}</strong></td>
+                            <td>${item.position}</td>
+                            <td>${item.region}</td>
+                            <td class="green-badge">${item.green}</td>
+                            <td class="red-badge">${item.red}</td>
+                            <td class="${item.remaining >= 0 ? 'green-badge' : 'red-badge'}">${item.remaining}</td>
+                        </tr>
+                    `;
+                });
+            });
+
+            document.querySelector('#food-safety-table thead').innerHTML = tableHead;
+            document.querySelector('#food-safety-table tbody').innerHTML = tableBody;
+        }
+
+        // ========== 贡献度数据渲染 ==========
+        function renderContributionChart() {
+            const sorted = [...contributionData].sort((a, b) => b.contribution - a.contribution);
+            
+            let tableHead = '<tr><th>地区</th><th>Q1全国均值</th><th>Q1实际开店</th><th>贡献度</th><th>加分值</th></tr>';
+            let tableBody = sorted.map(item => `
+                <tr>
+                    <td><strong>${item.region}</strong></td>
+                    <td>${item.avg}</td>
+                    <td>${item.actual}</td>
+                    <td class="${item.contribution >= 1 ? 'green-badge' : 'red-badge'}">${item.contribution.toFixed(3)}</td>
+                    <td class="${item.bonus > 0 ? 'green-badge' : ''}">${item.bonus}</td>
+                </tr>
+            `).join('');
+            
+            document.querySelector('#contribution-table thead').innerHTML = tableHead;
+            document.querySelector('#contribution-table tbody').innerHTML = tableBody;
+
+            const ctx = document.getElementById('contributionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: contributionData.map(d => d.region),
+                    datasets: [
+                        {
+                            label: 'Q1实际开店数',
+                            data: contributionData.map(d => d.actual),
+                            backgroundColor: 'rgba(26, 115, 232, 0.8)',
+                            borderColor: 'rgba(26, 115, 232, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Q1全国新开店均值',
+                            data: contributionData.map(d => d.avg),
+                            backgroundColor: 'rgba(255, 152, 0, 0.6)',
+                            borderColor: 'rgba(255, 152, 0, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '各地区Q1新开店数对比',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '开店数量'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========== KPI弹窗 ==========
+        function showKPIModal(dimension, title) {
+            document.getElementById('modal-title').textContent = title;
+            
+            const kpiNames = {
+                finance: ['总营业额达成率', '地区合资&法人公司税前利润得分', '新开店数达成率'],
+                customer: ['大众点评<4.0星管理', '饿了么<4.5星优化率', '美团<95分优化率', '低星店铺较去年增长率', '德克士会员业绩占比', '贝瑞会员业绩占比'],
+                operation: ['净增店数达成率', '店均管理费用使用率', '战略城市新开店数达成'],
+                learning: ['学习与发展维度综合得分']
+            };
+
+            const names = kpiNames[dimension] || [];
+            let tableHtml = `
+                <table class="kpi-table">
+                    <thead>
+                        <tr><th>指标名称</th><th>典型达成率</th><th>评分说明</th></tr>
+                    </thead>
+                    <tbody>
+                        ${names.map(name => `
+                            <tr>
+                                <td><strong>${name}</strong></td>
+                                <td>根据实际数据计算</td>
+                                <td>达成率×权重得分</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="click-hint" style="margin-top: 16px; padding: 12px; background: #f0f7ff; border-radius: 8px;">
+                    <strong>说明：</strong>各维度得分由其下所有KPI指标加权计算得出。点击维度卡片可查看该维度下所有人员的详细KPI指标表现。
+                </div>
+            `;
+            
+            document.getElementById('modal-content').innerHTML = tableHtml;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            renderQuZong();
+            renderQuZongXi();
+            renderQuZongZhong();
+            renderFoodSafety();
+        });
+    </script>
+</body>
+</html>
