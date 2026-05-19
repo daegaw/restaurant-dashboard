@@ -811,7 +811,7 @@
                     <div class="dimension-title">💰 财务维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${financeSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${financeSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -819,7 +819,7 @@
                     <div class="dimension-title">👥 顾客维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${customerSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${customerSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -827,7 +827,7 @@
                     <div class="dimension-title">⚙️ 组织运营维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${operationSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${operationSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -835,7 +835,7 @@
                     <div class="dimension-title">📚 学习与发展维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${learningSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${learningSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -899,7 +899,7 @@
                     <div class="dimension-title">💰 财务维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${financeSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${financeSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.finance.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -907,7 +907,7 @@
                     <div class="dimension-title">👥 顾客维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${customerSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${customerSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.customer.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -915,7 +915,7 @@
                     <div class="dimension-title">⚙️ 组织运营维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${operationSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${operationSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.operation.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
@@ -923,7 +923,7 @@
                     <div class="dimension-title">📚 学习与发展维度得分排名</div>
                     <table class="dimension-table">
                         <tr><th>姓名</th><th>地区</th><th>得分</th></tr>
-                        ${learningSorted.slice(0, 5).map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
+                        ${learningSorted.map((item, i) => `<tr><td>${item.name}</td><td>${item.region}</td><td><strong>${item.learning.toFixed(1)}</strong></td></tr>`).join('')}
                     </table>
                     <div class="click-hint">点击查看全部KPI指标明细 →</div>
                 </div>
